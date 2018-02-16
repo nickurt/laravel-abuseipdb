@@ -23,7 +23,11 @@ Copy the config files for the AbuseIpDb-plugin
 ```
 php artisan vendor:publish --provider="nickurt\AbuseIpDb\ServiceProvider" --tag="config"
 ```
-
+### Configuration
+The AbuseIpDb information can be set with environment values in the .env file (or directly in the config/abusedbip.php file)
+```
+ABUSEIPDB_APIKEY=MY_UNIQUE_APIKEY
+```
 ### Examples
 
 #### Validation Rule - IsSpamIp
