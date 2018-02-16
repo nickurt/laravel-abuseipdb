@@ -117,7 +117,13 @@ class AbuseIpDb
 
         $result = json_decode((string) $response->getBody());
 
-        return (bool) (count($result) > 0) ? true : false;
+        if((bool) (count($result) > 0)) {
+            event(new \nickurt\AbuseIpDb\Events\IsSpamIp($this->getIp()));
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
