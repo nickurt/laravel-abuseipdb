@@ -117,7 +117,7 @@ class AbuseIpDb
 
         $result = json_decode((string) $response->getBody());
 
-        return false;
+        return (bool) (count($result) > 0) ? true : false;
     }
 
     /**
