@@ -102,20 +102,24 @@ class AbuseIpDb
         $this->days = $days;
         return $this;
     }
+
     /**
      * @return bool
+     * @throws \Exception
      */
     public function IsSpamIp()
     {
-        $response = $this->getResponseData(
-            sprintf('%s/check/%s/json?key=%s&days=%d',
-                $this->getApiUrl(),
-                $this->getIp(),
-                $this->getApiKey(),
-                $this->getDays()
-            ));
+        $result = cache()->remember('laravel-abuseipdb-'.str_slug($this->getIp()).'-'.str_slug($this->getDays()), 10, function () {
+            $response = $this->getResponseData(
+                sprintf('%s/check/%s/json?key=%s&days=%d',
+                    $this->getApiUrl(),
+                    $this->getIp(),
+                    $this->getApiKey(),
+                    $this->getDays()
+                ));
 
-        $result = json_decode((string) $response->getBody());
+            return json_decode((string) $response->getBody());
+        });
 
         if((bool) (count($result) > 0)) {
             event(new \nickurt\AbuseIpDb\Events\IsSpamIp($this->getIp()));
