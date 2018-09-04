@@ -60,7 +60,7 @@ class AbuseIpDbTest extends TestCase
     /** @test */
     public function it_will_work_with_validation_rule_is_spam_ip()
     {
-        $val1 = Validator::make(['aip' => 'aip'], ['aip' => ['required', new \nickurt\AbuseIpDb\Rules\IsSpamIp('185.38.14.171', 10)]]);
+        $val1 = Validator::make(['aip' => 'aip'], ['aip' => ['required', new \nickurt\AbuseIpDb\Rules\IsSpamIp('185.38.14.171', 200)]]);
 
         $this->assertFalse($val1->passes());
         $this->assertSame(1, count($val1->messages()->get('aip')));
@@ -79,7 +79,7 @@ class AbuseIpDbTest extends TestCase
 
         $abuseIpDb = (new \nickurt\AbuseIpDb\AbuseIpDb());
 
-        $isSpamIp = $abuseIpDb->setIp('185.38.14.171')->isSpamIp();
+        $isSpamIp = $abuseIpDb->setIp('185.38.14.171')->setDays(200)->isSpamIp();
 
         Event::assertDispatched(\nickurt\AbuseIpDb\Events\IsSpamIp::class, function($e) use ($abuseIpDb) {
             return $e->ip === $abuseIpDb->getIp();

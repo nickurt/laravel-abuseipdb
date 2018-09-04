@@ -3,7 +3,7 @@
 ### Installation
 Install this package with composer:
 ```
-php composer.phar require nickurt/laravel-abuseipdb:1.*
+composer require nickurt/laravel-abuseipdb
 ```
 
 Add the provider to config/app.php file
