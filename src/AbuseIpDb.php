@@ -28,43 +28,30 @@ class AbuseIpDb
     protected $days = 30;
 
     /**
-     * @return string
+     * @return bool
+     * @throws \Exception
      */
-    public function getApiUrl()
+    public function IsSpamIp()
     {
-        return $this->apiUrl;
-    }
+        $result = cache()->remember('laravel-abuseipdb-' . str_slug($this->getIp()) . '-' . str_slug($this->getDays()), 10, function () {
+            $response = $this->getResponseData(
+                sprintf('%s/check/%s/json?key=%s&days=%d',
+                    $this->getApiUrl(),
+                    $this->getIp(),
+                    $this->getApiKey(),
+                    $this->getDays()
+                ));
 
-    /**
-     * @param $apiUrl
-     * @return $this
-     */
-    public function setApiUrl($apiUrl)
-    {
-        if (filter_var($apiUrl, FILTER_VALIDATE_URL) === false) {
-            throw new MalformedURLException();
+            return json_decode((string)$response->getBody());
+        });
+
+        if ((bool)(count($result) > 0)) {
+            event(new \nickurt\AbuseIpDb\Events\IsSpamIp($this->getIp()));
+
+            return true;
         }
 
-        $this->apiUrl = $apiUrl;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getApiKey()
-    {
-        return $this->apiKey;
-    }
-
-    /**
-     * @param $apiKey
-     * @return $this
-     */
-    public function setApiKey($apiKey)
-    {
-        $this->apiKey = $apiKey;
-        return $this;
+        return false;
     }
 
     /**
@@ -104,38 +91,51 @@ class AbuseIpDb
     }
 
     /**
-     * @return bool
-     * @throws \Exception
-     */
-    public function IsSpamIp()
-    {
-        $result = cache()->remember('laravel-abuseipdb-'.str_slug($this->getIp()).'-'.str_slug($this->getDays()), 10, function () {
-            $response = $this->getResponseData(
-                sprintf('%s/check/%s/json?key=%s&days=%d',
-                    $this->getApiUrl(),
-                    $this->getIp(),
-                    $this->getApiKey(),
-                    $this->getDays()
-                ));
-
-            return json_decode((string) $response->getBody());
-        });
-
-        if((bool) (count($result) > 0)) {
-            event(new \nickurt\AbuseIpDb\Events\IsSpamIp($this->getIp()));
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * @param $url
      * @return \Psr\Http\Message\ResponseInterface
      */
     protected function getResponseData($url)
     {
         return (new Client())->get($url);
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiUrl()
+    {
+        return $this->apiUrl;
+    }
+
+    /**
+     * @param $apiUrl
+     * @return $this
+     */
+    public function setApiUrl($apiUrl)
+    {
+        if (filter_var($apiUrl, FILTER_VALIDATE_URL) === false) {
+            throw new MalformedURLException();
+        }
+
+        $this->apiUrl = $apiUrl;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey;
+    }
+
+    /**
+     * @param $apiKey
+     * @return $this
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+        return $this;
     }
 }

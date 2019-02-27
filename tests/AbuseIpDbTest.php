@@ -34,14 +34,6 @@ class AbuseIpDbTest extends TestCase
     }
 
     /** @test */
-    public function it_can_work_with_helper()
-    {
-        $this->assertTrue(function_exists('abuseipdb'));
-
-        $this->assertInstanceOf(\nickurt\AbuseIpDb\AbuseIpDb::class, abuseipdb());
-    }
-
-    /** @test */
     public function it_can_work_with_container()
     {
         $this->assertInstanceOf(\nickurt\AbuseIpDb\AbuseIpDb::class, $this->app['AbuseIpDb']);
@@ -58,18 +50,11 @@ class AbuseIpDbTest extends TestCase
     }
 
     /** @test */
-    public function it_will_work_with_validation_rule_is_spam_ip()
+    public function it_can_work_with_helper()
     {
-        $val1 = Validator::make(['aip' => 'aip'], ['aip' => ['required', new \nickurt\AbuseIpDb\Rules\IsSpamIp('185.38.14.171', 200)]]);
+        $this->assertTrue(function_exists('abuseipdb'));
 
-        $this->assertFalse($val1->passes());
-        $this->assertSame(1, count($val1->messages()->get('aip')));
-        $this->assertSame('It is currently not possible to register with your specified information, please try later again', $val1->messages()->first('aip'));
-
-        $val2 = Validator::make(['aip' => 'aip'], ['aip' => ['required', new \nickurt\AbuseIpDb\Rules\IsSpamIp('192.168.200.200', 10)]]);
-
-        $this->assertTrue($val2->passes());
-        $this->assertSame(0, count($val2->messages()->get('aip')));
+        $this->assertInstanceOf(\nickurt\AbuseIpDb\AbuseIpDb::class, abuseipdb());
     }
 
     /** @test */
@@ -81,7 +66,7 @@ class AbuseIpDbTest extends TestCase
 
         $isSpamIp = $abuseIpDb->setIp('185.38.14.171')->setDays(200)->isSpamIp();
 
-        Event::assertDispatched(\nickurt\AbuseIpDb\Events\IsSpamIp::class, function($e) use ($abuseIpDb) {
+        Event::assertDispatched(\nickurt\AbuseIpDb\Events\IsSpamIp::class, function ($e) use ($abuseIpDb) {
             return $e->ip === $abuseIpDb->getIp();
         });
     }
@@ -106,6 +91,21 @@ class AbuseIpDbTest extends TestCase
     {
         $abuseIpDb = (new \nickurt\AbuseIpDb\AbuseIpDb())
             ->setApiUrl('malformed_url');
+    }
+
+    /** @test */
+    public function it_will_work_with_validation_rule_is_spam_ip()
+    {
+        $val1 = Validator::make(['aip' => 'aip'], ['aip' => ['required', new \nickurt\AbuseIpDb\Rules\IsSpamIp('185.38.14.171', 200)]]);
+
+        $this->assertFalse($val1->passes());
+        $this->assertSame(1, count($val1->messages()->get('aip')));
+        $this->assertSame('It is currently not possible to register with your specified information, please try later again', $val1->messages()->first('aip'));
+
+        $val2 = Validator::make(['aip' => 'aip'], ['aip' => ['required', new \nickurt\AbuseIpDb\Rules\IsSpamIp('192.168.200.200', 10)]]);
+
+        $this->assertTrue($val2->passes());
+        $this->assertSame(0, count($val2->messages()->get('aip')));
     }
 
     /**
