@@ -48,6 +48,39 @@ $isSpamIp = (new \nickurt\AbuseIpDb\AbuseIpDb())
 $isSpamIp = abuseipdb()
     ->setIp('8.8.8.8')
     ->isSpamIp();
+    
+// this is the same as
+$isSpamIp = abuseipdb()->isSpamIp('8.8.8.8');
+
+// cache the result for 10 minutes = 600 seconds (default 10 seconds)
+abuseipdb()->setCacheTTL(600);
+
+// lower the required abuse confidence score from 100 (max) to 90%
+abuseipdb()->setSpamThreshold(90);
+
+// report an ip in categories 18 (Brute-Force) and 22 (SSH)
+// For categories see https://www.abuseipdb.com/categories
+$updated_abuse_confidence = abuseipdb()->reportIp('18,22', '127.0.0.1', 'SSH login attempts with user root.');
+
+// Catch exceptions
+try{
+    abuseipdb()->isSpamIp('invalid-ip');
+} catch(\nickurt\AbuseIpDb\AbuseIpDbException $exception) {
+    // outputs "The ip address must be a valid IPv4 or IPv6 address (e.g. 8.8.8.8 or 2001:4860:4860::8888)."
+    die($exception->getMessage());
+}
+
+try{
+    // Do it twice (happens eg if hacker accesses two invalid urls and each reports this IP)
+    // Both commands do the same in just two different ways 
+    abuseipdb()->setIp('127.0.0.2')->reportIp('18,22');
+    abuseipdb()->reportIp('18,22', '127.0.0.2');
+} catch(\nickurt\AbuseIpDb\AbuseIpDbException $exception) {
+    die($exception->getMessage());
+    // outputs: "You can only report the same IP address (`127.0.0.2`) once in 15 minutes."
+}
+
+
 ```
 #### Events
 You can listen to the `IsSpamIp` event, e.g. if you want to log the `IsSpamIp`-requests in your application
