@@ -91,7 +91,7 @@ class AbuseIpDb
             'comment' => $comment
         ]);
 
-        return $result->data->abuseConfidentScore;
+        return $result->abuseConfidentScore;
     }
 
     /**
