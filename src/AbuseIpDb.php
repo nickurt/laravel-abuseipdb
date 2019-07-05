@@ -5,8 +5,7 @@ namespace nickurt\AbuseIpDb;
 use \GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use \nickurt\AbuseIpDb\Exception\MalformedURLException;
-
-class AbuseIpDbException extends \Exception{};
+use \nickurt\AbuseIpDb\Exception\AbuseIpDbException;
 
 class AbuseIpDb
 {
