@@ -83,7 +83,7 @@ class AbuseIpDb
             $ip = $this->getIp();
         }
 
-        $ip = urlencode($ip);
+        $ip = urlencode($ip ?? $this->getIp());
 
         $result = $this->postResponseData('report', [
             'ip' => $ip,
