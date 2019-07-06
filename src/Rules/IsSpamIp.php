@@ -6,34 +6,29 @@ use Illuminate\Contracts\Validation\Rule;
 
 class IsSpamIp implements Rule
 {
-    /**
-     * @var
-     */
-    protected $ip;
-
-    /**
-     * @var
-     */
+    /** @var int */
     protected $days;
 
+    /** @var string */
+    protected $ip;
+
+    /** @var int */
+    protected $threshold;
+
     /**
-     * Create a new rule instance.
-     *
-     * @param $ip
-     * @param $days
-     *
-     * @return void
+     * @param string $ip
+     * @param int $days
+     * @param int $threshold
      */
-    public function __construct($ip, $days = 30)
+    public function __construct($ip, $days = 30, $threshold = 100)
     {
         $this->ip = $ip;
         $this->days = $days;
+        $this->threshold = $threshold;
     }
 
     /**
-     * Get the validation error message.
-     *
-     * @return string
+     * @return array|\Illuminate\Contracts\Translation\Translator|string|null
      */
     public function message()
     {
@@ -41,18 +36,16 @@ class IsSpamIp implements Rule
     }
 
     /**
-     * Determine if the validation rule passes.
-     *
-     * @param  string $attribute
-     * @param  mixed $value
+     * @param string $attribute
+     * @param mixed $value
      * @return bool
+     * @throws \Exception
      */
     public function passes($attribute, $value)
     {
-        $sfs = (new \nickurt\AbuseIpDb\AbuseIpDb())
-            ->setIp($this->ip)
-            ->setDays($this->days);
+        /** @var \nickurt\AbuseIpDb\AbuseIpDb $sfs */
+        $abuseIpDb = \AbuseIpDb::setIp($this->ip)->setDays($this->days)->setSpamThreshold($this->threshold);
 
-        return $sfs->isSpamIp() ? false : true;
+        return $abuseIpDb->isSpamIp() ? false : true;
     }
 }
