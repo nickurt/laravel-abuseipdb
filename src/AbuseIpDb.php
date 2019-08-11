@@ -2,10 +2,13 @@
 
 namespace nickurt\AbuseIpDb;
 
-use \GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
-use \nickurt\AbuseIpDb\Exception\MalformedURLException;
-use \nickurt\AbuseIpDb\Exception\AbuseIpDbException;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Str;
+use nickurt\AbuseIpDb\Events\IsSpamIp;
+use nickurt\AbuseIpDb\Exception\AbuseIpDbException;
+use nickurt\AbuseIpDb\Exception\MalformedURLException;
 
 class AbuseIpDb
 {
@@ -33,13 +36,13 @@ class AbuseIpDb
     /**
      * @param null|string $ip
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function IsSpamIp($ip = null)
     {
         $ip = urlencode($ip ?? $this->getIp());
 
-        $result = cache()->remember('laravel-abuseipdb-' . str_slug($ip) . '-' . str_slug($this->getDays()), $this->getCacheTTL(), function () use ($ip) {
+        $result = cache()->remember('laravel-abuseipdb-' . Str::slug($ip) . '-' . Str::slug($this->getDays()), $this->getCacheTTL(), function () use ($ip) {
             return $this->getResponseData('check', [
                 'ipAddress' => $ip,
                 'maxAgeInDays' => $this->getDays(),
@@ -47,7 +50,7 @@ class AbuseIpDb
         });
 
         if ($result->abuseConfidenceScore >= $this->getSpamThreshold()) {
-            event(new \nickurt\AbuseIpDb\Events\IsSpamIp($this->getIp()));
+            event(new IsSpamIp($this->getIp(), $result->abuseConfidenceScore));
 
             return true;
         }
@@ -116,7 +119,7 @@ class AbuseIpDb
      * @param string $endpoint
      * @param array $query
      * @return object
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     protected function getResponseData($endpoint, $query)
     {
@@ -128,7 +131,7 @@ class AbuseIpDb
                     'Key' => $this->getApiKey()
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = $e->getResponse();
         }
 
@@ -235,7 +238,7 @@ class AbuseIpDb
      * @param null|string $ip
      * @param string $comment
      * @return object
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function reportIp($categories, $ip = null, $comment = '')
     {
@@ -254,7 +257,7 @@ class AbuseIpDb
      * @param string $endpoint
      * @param array $query
      * @return object
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     protected function postResponseData($endpoint, $query)
     {
@@ -266,7 +269,7 @@ class AbuseIpDb
                     'Key' => $this->getApiKey()
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = $e->getResponse();
         }
 

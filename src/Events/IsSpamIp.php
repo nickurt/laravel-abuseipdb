@@ -4,17 +4,19 @@ namespace nickurt\AbuseIpDb\Events;
 
 class IsSpamIp
 {
-    /**
-     * @var
-     */
+    /** @var string */
     public $ip;
 
+    /** @var int */
+    public $frequency;
+
     /**
-     * IsSpamIp constructor.
-     * @param $ip
+     * @param string $ip
+     * @param int $frequency
      */
-    public function __construct($ip)
+    public function __construct($ip, int $frequency)
     {
         $this->ip = $ip;
+        $this->frequency = $frequency;
     }
 }
