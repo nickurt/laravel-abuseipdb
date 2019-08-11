@@ -41,8 +41,9 @@ class AbuseIpDbTest extends TestCase
             'handler' => new MockHandler([
                 new Response(200, [], '{"data":{"ipAddress":"127.0.0.1","abuseConfidenceScore":0}}')
             ]),
-        ]))->reportIp('3,4,5', '127.0.0.1'));
+        ]))->setIp('39.6.25.118')->reportIp('3,4,5', '127.0.0.1'));
 
+        $this->assertSame('127.0.0.1', $this->abuseIpDb->getIp());
         $this->assertSame('https://api.abuseipdb.com/api/v2/report?ip=127.0.0.1&categories=3%2C4%2C5&comment=', (string)$this->abuseIpDb->getClient()->getConfig()['handler']->getLastRequest()->getUri());
     }
 
@@ -127,6 +128,9 @@ class AbuseIpDbTest extends TestCase
         $this->assertFalse($rule->passes('aip', 'aip'));
         $this->assertSame('It is currently not possible to register with your specified information, please try later again', $rule->message());
 
+        $this->assertSame('118.25.6.39', $this->abuseIpDb->getIp());
+        $this->assertSame('https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30', (string)$this->abuseIpDb->getClient()->getConfig()['handler']->getLastRequest()->getUri());
+
         Event::assertDispatched(IsSpamIp::class, function ($e) {
             $this->assertSame('118.25.6.39', $e->ip);
             $this->assertSame(36, $e->frequency);
@@ -144,8 +148,9 @@ class AbuseIpDbTest extends TestCase
             'handler' => new MockHandler([
                 new Response(200, [], '{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":36,"countryCode":"CN","usageType":"Data Center\/Web Hosting\/Transit","isp":"Tencent Cloud Computing (Beijing) Co. Ltd","domain":"tencent.com","totalReports":9,"numDistinctUsers":5,"lastReportedAt":"2019-07-04T17:15:00+01:00"}}')
             ]),
-        ]))->setDays(30)->setSpamThreshold(35)->setIp('118.25.6.39')->isSpamIp());
+        ]))->setDays(30)->setSpamThreshold(35)->setIp('39.6.25.118')->isSpamIp('118.25.6.39'));
 
+        $this->assertSame('118.25.6.39', $this->abuseIpDb->getIp());
         $this->assertSame('https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30', (string)$this->abuseIpDb->getClient()->getConfig()['handler']->getLastRequest()->getUri());
 
         Event::assertDispatched(IsSpamIp::class, function ($e) {

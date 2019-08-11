@@ -40,11 +40,11 @@ class AbuseIpDb
      */
     public function IsSpamIp($ip = null)
     {
-        $ip = urlencode($ip ?? $this->getIp());
+        $this->setIp($ip ?? $this->getIp());
 
-        $result = cache()->remember('laravel-abuseipdb-' . Str::slug($ip) . '-' . Str::slug($this->getDays()), $this->getCacheTTL(), function () use ($ip) {
+        $result = cache()->remember('laravel-abuseipdb-' . Str::slug($this->getIp()) . '-' . Str::slug($this->getDays()), $this->getCacheTTL(), function () use ($ip) {
             return $this->getResponseData('check', [
-                'ipAddress' => $ip,
+                'ipAddress' => $this->getIp(),
                 'maxAgeInDays' => $this->getDays(),
             ]);
         });
@@ -242,10 +242,10 @@ class AbuseIpDb
      */
     public function reportIp($categories, $ip = null, $comment = '')
     {
-        $ip = urlencode($ip ?? $this->getIp());
+        $this->setIp($ip ?? $this->getIp());
 
         $result = $this->postResponseData('report', [
-            'ip' => $ip,
+            'ip' => $this->getIp(),
             'categories' => $categories,
             'comment' => $comment
         ]);
