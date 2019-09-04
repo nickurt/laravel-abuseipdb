@@ -136,6 +136,10 @@ class AbuseIpDb
         }
 
         $output = json_decode($response->getBody());
+        
+        if (is_null($output)) {
+            throw new AbuseIpDbException('abuseipdb returned an invalid json response: "' . $response->getBody() . '".');
+        }
 
         if (property_exists($output, 'errors')) {
             throw new AbuseIpDbException(implode(', ', array_map(function ($error) {
@@ -273,7 +277,11 @@ class AbuseIpDb
             $response = $e->getResponse();
         }
 
-        $output = json_decode($response->getBody());
+        $output = json_decode($response->getBody());        
+        
+        if (is_null($output)) {
+            throw new AbuseIpDbException('abuseipdb returned an invalid json response: "' . $response->getBody() . '".');
+        }
 
         if (property_exists($output, 'errors')) {
             throw new AbuseIpDbException(implode(', ', array_map(function ($error) {
