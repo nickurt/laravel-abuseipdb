@@ -5,23 +5,10 @@
 [![Build Status](https://img.shields.io/travis/nickurt/laravel-abuseipdb/master.svg?style=flat-square)](https://travis-ci.org/nickurt/laravel-abuseipdb)
 [![Total Downloads](https://img.shields.io/packagist/dt/nickurt/laravel-abuseipdb.svg?style=flat-square)](https://packagist.org/packages/nickurt/laravel-abuseipdb)
 
-
 ### Installation
 Install this package with composer:
 ```
 composer require nickurt/laravel-abuseipdb
-```
-
-Add the provider to config/app.php file
-
-```php
-'nickurt\AbuseIpDb\ServiceProvider',
-```
-
-and the facade in the file
-
-```php
-'AbuseIpDb' => 'nickurt\AbuseIpDb\Facade',
 ```
 
 Copy the config files for the AbuseIpDb-plugin

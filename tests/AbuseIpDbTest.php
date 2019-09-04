@@ -194,6 +194,19 @@ class AbuseIpDbTest extends TestCase
     }
 
     /** @test */
+    public function it_will_throw_exception_by_invalid_json_response()
+    {
+        $this->expectException(AbuseIpDbException::class);
+        $this->expectExceptionMessage('abuseipdb returned an invalid json response: "".');
+
+        $this->abuseIpDb->setClient(new Client([
+            'handler' => new MockHandler([
+                new Response(200, [])
+            ]),
+        ]))->isSpamIp();
+    }
+
+    /** @test */
     public function it_will_throw_exception_by_authentication_failed()
     {
         $this->expectException(AbuseIpDbException::class);
