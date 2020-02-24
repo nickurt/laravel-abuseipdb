@@ -2,8 +2,8 @@
 
 namespace nickurt\AbuseIpDb\Tests;
 
-use AbuseIpDb;
-use Event;
+use nickurt\AbuseIpDb\Facade as AbuseIpDb;
+use Illuminate\Support\Facades\Event;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
@@ -199,6 +199,8 @@ class AbuseIpDbTest extends TestCase
         $this->expectException(AbuseIpDbException::class);
         $this->expectExceptionMessage('abuseipdb returned an invalid json response: "".');
 
+        $this->abuseIpDb->setIp('127.0.0.1');
+
         $this->abuseIpDb->setClient(new Client([
             'handler' => new MockHandler([
                 new Response(200, [])
@@ -211,6 +213,8 @@ class AbuseIpDbTest extends TestCase
     {
         $this->expectException(AbuseIpDbException::class);
         $this->expectExceptionMessage('Authentication failed. You are either missing your API key or it is incorrect. Note: The APIv2 key differs from the APIv1 key.');
+
+        $this->abuseIpDb->setIp('127.0.0.1');
 
         $this->abuseIpDb->setClient(new Client([
             'handler' => new MockHandler([
