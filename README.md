@@ -1,9 +1,8 @@
 ## Laravel AbuseIpDb
-
-[![Latest Stable Version](https://poser.pugx.org/nickurt/laravel-abuseipdb/v/stable?format=flat-square)](https://packagist.org/packages/nickurt/laravel-abuseipdb)
-[![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/nickurt/laravel-abuseipdb/master.svg?style=flat-square)](https://travis-ci.org/nickurt/laravel-abuseipdb)
-[![Total Downloads](https://img.shields.io/packagist/dt/nickurt/laravel-abuseipdb.svg?style=flat-square)](https://packagist.org/packages/nickurt/laravel-abuseipdb)
+[![Build Status](https://github.com/nickurt/laravel-abuseipdb/workflows/tests/badge.svg)](https://github.com/nickurt/laravel-abuseipdb/actions)
+[![Total Downloads](https://poser.pugx.org/nickurt/laravel-abuseipdb/d/total.svg)](https://packagist.org/packages/nickurt/laravel-abuseipdb)
+[![Latest Stable Version](https://poser.pugx.org/nickurt/laravel-abuseipdb/v/stable.svg)](https://packagist.org/packages/nickurt/laravel-abuseipdb)
+[![MIT Licensed](https://poser.pugx.org/nickurt/laravel-abuseipdb/license.svg)](LICENSE.md)
 
 ### Installation
 Install this package with composer:
