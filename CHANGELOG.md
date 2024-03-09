@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-abuseipdb` will be documented in this file
 
+## 2.6.0 - 2024-03-09
+
+- Adding support for Laravel 11
+
 ## 2.5.0 - 2020-11-29
 
 - Adding support for PHP 8.0, ditched PHP 7.2 and PHP 7.3
