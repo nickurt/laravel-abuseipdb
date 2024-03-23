@@ -11,11 +11,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function boot()
     {
-        $this->loadTranslationsFrom(__DIR__ . '/../src/Resources/Lang', 'abuseipdb');
+        $this->loadTranslationsFrom(__DIR__.'/../src/Resources/Lang', 'abuseipdb');
 
         $this->publishes([
-            __DIR__ . '/../config/abuseipdb.php' => config_path('abuseipdb.php'),
-            __DIR__ . '/../src/Resources/Lang' => resource_path('lang/vendor/abuseipdb'),
+            __DIR__.'/../config/abuseipdb.php' => config_path('abuseipdb.php'),
+            __DIR__.'/../src/Resources/Lang' => resource_path('lang/vendor/abuseipdb'),
         ], 'config');
     }
 

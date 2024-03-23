@@ -3,8 +3,8 @@
 namespace nickurt\AbuseIpDb;
 
 use Exception;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use nickurt\AbuseIpDb\Events\IsSpamIp;
 use nickurt\AbuseIpDb\Exception\AbuseIpDbException;
@@ -21,9 +21,6 @@ class AbuseIpDb
     /** @var int */
     protected $cache_ttl = 10;
 
-    /** @var \GuzzleHttp\Client */
-    protected $client;
-
     /** @var int */
     protected $days = 30;
 
@@ -34,23 +31,24 @@ class AbuseIpDb
     protected $spam_threshold = 100;
 
     /**
-     * @param null|string $ip
+     * @param  null|string  $ip
      * @return bool
+     *
      * @throws Exception
      */
     public function IsSpamIp($ip = null)
     {
         $this->setIp($ip ?? $this->getIp());
 
-        $result = cache()->remember('laravel-abuseipdb-' . Str::slug($this->getIp()) . '-' . Str::slug($this->getDays()), $this->getCacheTTL(), function () use ($ip) {
+        $result = cache()->remember('laravel-abuseipdb-'.Str::slug($this->getIp()).'-'.Str::slug($this->getDays()), $this->getCacheTTL(), function () {
             return $this->getResponseData('check', [
                 'ipAddress' => $this->getIp(),
                 'maxAgeInDays' => $this->getDays(),
             ]);
         });
 
-        if ($result->abuseConfidenceScore >= $this->getSpamThreshold()) {
-            event(new IsSpamIp($this->getIp(), $result->abuseConfidenceScore));
+        if ($result['abuseConfidenceScore'] >= $this->getSpamThreshold()) {
+            event(new IsSpamIp($this->getIp(), $result['abuseConfidenceScore']));
 
             return true;
         }
@@ -67,7 +65,7 @@ class AbuseIpDb
     }
 
     /**
-     * @param string $ip
+     * @param  string  $ip
      * @return $this
      */
     public function setIp($ip)
@@ -86,7 +84,7 @@ class AbuseIpDb
     }
 
     /**
-     * @param int $days
+     * @param  int  $days
      * @return $this
      */
     public function setDays($days)
@@ -105,7 +103,7 @@ class AbuseIpDb
     }
 
     /**
-     * @param int $cache_ttl
+     * @param  int  $cache_ttl
      * @return $this
      */
     public function setCacheTTL($cache_ttl)
@@ -116,63 +114,30 @@ class AbuseIpDb
     }
 
     /**
-     * @param string $endpoint
-     * @param array $query
-     * @return object
-     * @throws GuzzleException
+     * @return mixed
      */
     protected function getResponseData($endpoint, $query)
     {
         try {
-            $response = $this->getClient()->request('GET', $this->getApiUrl() . '/' . $endpoint, [
-                'query' => $query,
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'Key' => $this->getApiKey()
-                ]
-            ]);
+            $output = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Key' => $this->getApiKey(),
+            ])->withQueryParameters($query)->get($this->getApiUrl().'/'.$endpoint)->json();
         } catch (Exception $e) {
-            $response = $e->getResponse();
+            $output = $e->getMessage();
         }
 
-        $output = json_decode($response->getBody());
-        
         if (is_null($output)) {
-            throw new AbuseIpDbException('abuseipdb returned an invalid json response: "' . $response->getBody() . '".');
+            throw new AbuseIpDbException('abuseipdb returned an invalid json response: "'.$output.'".');
         }
 
-        if (property_exists($output, 'errors')) {
+        if (isset($output['errors'])) {
             throw new AbuseIpDbException(implode(', ', array_map(function ($error) {
-                return $error->detail;
-            }, $output->errors)));
+                return $error['detail'];
+            }, $output['errors'])));
         }
 
-        return $output->data;
-    }
-
-    /**
-     * @return Client
-     */
-    public function getClient()
-    {
-        if (!isset($this->client)) {
-            $this->client = new Client();
-
-            return $this->client;
-        }
-
-        return $this->client;
-    }
-
-    /**
-     * @param $client
-     * @return $this
-     */
-    public function setClient($client)
-    {
-        $this->client = $client;
-
-        return $this;
+        return $output['data'];
     }
 
     /**
@@ -184,8 +149,9 @@ class AbuseIpDb
     }
 
     /**
-     * @param string $apiUrl
+     * @param  string  $apiUrl
      * @return $this
+     *
      * @throws MalformedURLException
      */
     public function setApiUrl($apiUrl)
@@ -208,7 +174,7 @@ class AbuseIpDb
     }
 
     /**
-     * @param string $apiKey
+     * @param  string  $apiKey
      * @return $this
      */
     public function setApiKey($apiKey)
@@ -227,7 +193,7 @@ class AbuseIpDb
     }
 
     /**
-     * @param int $spamThreshold
+     * @param  int  $spamThreshold
      * @return $this
      */
     public function setSpamThreshold($spamThreshold)
@@ -238,10 +204,11 @@ class AbuseIpDb
     }
 
     /**
-     * @param string $categories
-     * @param null|string $ip
-     * @param string $comment
+     * @param  string  $categories
+     * @param  null|string  $ip
+     * @param  string  $comment
      * @return object
+     *
      * @throws GuzzleException
      */
     public function reportIp($categories, $ip = null, $comment = '')
@@ -251,44 +218,36 @@ class AbuseIpDb
         $result = $this->postResponseData('report', [
             'ip' => $this->getIp(),
             'categories' => $categories,
-            'comment' => $comment
+            'comment' => $comment,
         ]);
 
-        return $result->abuseConfidenceScore;
+        return $result['abuseConfidenceScore'];
     }
 
     /**
-     * @param string $endpoint
-     * @param array $query
-     * @return object
-     * @throws GuzzleException
+     * @return mixed
      */
     protected function postResponseData($endpoint, $query)
     {
         try {
-            $response = $this->getClient()->request('POST', $this->getApiUrl() . '/' . $endpoint, [
-                'query' => $query,
-                'headers' => [
-                    'Accept' => 'application/json',
-                    'Key' => $this->getApiKey()
-                ]
-            ]);
+            $output = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Key' => $this->getApiKey(),
+            ])->withQueryParameters($query)->post($this->getApiUrl().'/'.$endpoint)->json();
         } catch (Exception $e) {
-            $response = $e->getResponse();
+            $output = $e->getMessage();
         }
 
-        $output = json_decode($response->getBody());        
-        
         if (is_null($output)) {
-            throw new AbuseIpDbException('abuseipdb returned an invalid json response: "' . $response->getBody() . '".');
+            throw new AbuseIpDbException('abuseipdb returned an invalid json response: "'.$output.'".');
         }
 
-        if (property_exists($output, 'errors')) {
+        if (isset($output['errors'])) {
             throw new AbuseIpDbException(implode(', ', array_map(function ($error) {
-                return $error->detail;
-            }, $output->errors)));
+                return $error['detail'];
+            }, $output['errors'])));
         }
 
-        return $output->data;
+        return $output['data'];
     }
 }

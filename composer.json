@@ -10,7 +10,7 @@
         "ext-json": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5.12",
+        "phpunit/phpunit": "^10.5.12|^11.0.8",
         "orchestra/testbench": "^8.0|^9.0"
     },
     "autoload": {
@@ -20,6 +20,11 @@
         "files": [
             "src/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "nickurt\\AbuseIpDb\\tests\\": "tests"
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

@@ -16,9 +16,9 @@ class IsSpamIp implements Rule
     protected $threshold;
 
     /**
-     * @param string $ip
-     * @param int $days
-     * @param int $threshold
+     * @param  string  $ip
+     * @param  int  $days
+     * @param  int  $threshold
      */
     public function __construct($ip, $days = 30, $threshold = 100)
     {
@@ -36,9 +36,10 @@ class IsSpamIp implements Rule
     }
 
     /**
-     * @param string $attribute
-     * @param mixed $value
+     * @param  string  $attribute
+     * @param  mixed  $value
      * @return bool
+     *
      * @throws \Exception
      */
     public function passes($attribute, $value)
