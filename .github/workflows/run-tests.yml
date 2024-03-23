@@ -43,6 +43,14 @@ jobs:
                 run: |
                     composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
 
+            -   name: Set Minimum Laravel 10.x Versions
+                uses: nick-invision/retry@v1
+                with:
+                    timeout_minutes: 5
+                    max_attempts: 5
+                    command: composer require laravel/framework:^10.14.0 --no-interaction --no-update
+                if: matrix.dependency-version == 'prefer-lowest' && matrix.laravel == '10.x'
+
             -   name: Install dependencies
                 run: |
                     composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
