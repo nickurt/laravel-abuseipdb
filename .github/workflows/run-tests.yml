@@ -49,7 +49,7 @@ jobs:
                     timeout_minutes: 5
                     max_attempts: 5
                     command: composer require laravel/framework:^10.14.0 --no-interaction --no-update
-                if: matrix.dependency-version == 'prefer-lowest' && matrix.laravel == '10.x'
+                if: matrix.dependency-version == 'prefer-lowest' && matrix.laravel == '10.*'
 
             -   name: Install dependencies
                 run: |
