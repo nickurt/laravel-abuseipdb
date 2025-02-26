@@ -95,9 +95,9 @@ class AbuseIpDbTest extends TestCase
     {
         Event::fake();
 
-        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":36,"countryCode":"CN","usageType":"Data Center\/Web Hosting\/Transit","isp":"Tencent Cloud Computing (Beijing) Co. Ltd","domain":"tencent.com","totalReports":9,"numDistinctUsers":5,"lastReportedAt":"2019-07-04T17:15:00+01:00"}}')]);
+        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":11,"countryCode":"CN","usageType":"Data Center/Web Hosting/Transit","isp":"Tencent Cloud Computing (Beijing) Co., Ltd","domain":"tencent.com","hostnames":[],"isTor":false,"totalReports":0,"numDistinctUsers":0,"lastReportedAt":"2024-12-30T07:50:59+00:00"}}')]);
 
-        $rule = new \nickurt\AbuseIpDb\Rules\IsSpamIp('118.25.6.39', 30, 35);
+        $rule = new \nickurt\AbuseIpDb\Rules\IsSpamIp('118.25.6.39', 30, 10);
 
         $this->assertFalse($rule->passes('aip', 'aip'));
         $this->assertSame('It is currently not possible to register with your specified information, please try later again', $rule->message());
@@ -105,7 +105,7 @@ class AbuseIpDbTest extends TestCase
 
         Event::assertDispatched(IsSpamIp::class, function ($e) {
             $this->assertSame('118.25.6.39', $e->ip);
-            $this->assertSame(36, $e->frequency);
+            $this->assertSame(11, $e->frequency);
 
             return true;
         });
@@ -115,14 +115,14 @@ class AbuseIpDbTest extends TestCase
     {
         Event::fake();
 
-        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":36,"countryCode":"CN","usageType":"Data Center\/Web Hosting\/Transit","isp":"Tencent Cloud Computing (Beijing) Co. Ltd","domain":"tencent.com","totalReports":9,"numDistinctUsers":5,"lastReportedAt":"2019-07-04T17:15:00+01:00"}}')]);
+        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":11,"countryCode":"CN","usageType":"Data Center/Web Hosting/Transit","isp":"Tencent Cloud Computing (Beijing) Co., Ltd","domain":"tencent.com","hostnames":[],"isTor":false,"totalReports":0,"numDistinctUsers":0,"lastReportedAt":"2024-12-30T07:50:59+00:00"}}')]);
 
-        $this->assertTrue($this->abuseIpDb->setDays(30)->setSpamThreshold(35)->setIp('39.6.25.118')->isSpamIp('118.25.6.39'));
+        $this->assertTrue($this->abuseIpDb->setDays(30)->setSpamThreshold(11)->setIp('39.6.25.118')->isSpamIp('118.25.6.39'));
         $this->assertSame('118.25.6.39', $this->abuseIpDb->getIp());
 
         Event::assertDispatched(IsSpamIp::class, function ($e) {
             $this->assertSame('118.25.6.39', $e->ip);
-            $this->assertSame(36, $e->frequency);
+            $this->assertSame(11, $e->frequency);
 
             return true;
         });
@@ -132,9 +132,9 @@ class AbuseIpDbTest extends TestCase
     {
         Event::fake();
 
-        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":36,"countryCode":"CN","usageType":"Data Center\/Web Hosting\/Transit","isp":"Tencent Cloud Computing (Beijing) Co. Ltd","domain":"tencent.com","totalReports":9,"numDistinctUsers":5,"lastReportedAt":"2019-07-04T17:15:00+01:00"}}')]);
+        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":11,"countryCode":"CN","usageType":"Data Center/Web Hosting/Transit","isp":"Tencent Cloud Computing (Beijing) Co., Ltd","domain":"tencent.com","hostnames":[],"isTor":false,"totalReports":0,"numDistinctUsers":0,"lastReportedAt":"2024-12-30T07:50:59+00:00"}}')]);
 
-        $this->assertFalse($this->abuseIpDb->setSpamThreshold(37)->setIp('118.25.6.39')->isSpamIp());
+        $this->assertFalse($this->abuseIpDb->setSpamThreshold(12)->setIp('118.25.6.39')->isSpamIp());
 
         Event::assertNotDispatched(IsSpamIp::class);
     }
@@ -143,7 +143,7 @@ class AbuseIpDbTest extends TestCase
     {
         Event::fake();
 
-        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":36,"countryCode":"CN","usageType":"Data Center\/Web Hosting\/Transit","isp":"Tencent Cloud Computing (Beijing) Co. Ltd","domain":"tencent.com","totalReports":9,"numDistinctUsers":5,"lastReportedAt":"2019-07-04T17:15:00+01:00"}}')]);
+        Http::fake(['https://api.abuseipdb.com/api/v2/check?ipAddress=118.25.6.39&maxAgeInDays=30' => Http::response('{"data":{"ipAddress":"118.25.6.39","isPublic":true,"ipVersion":4,"isWhitelisted":false,"abuseConfidenceScore":11,"countryCode":"CN","usageType":"Data Center/Web Hosting/Transit","isp":"Tencent Cloud Computing (Beijing) Co., Ltd","domain":"tencent.com","hostnames":[],"isTor":false,"totalReports":0,"numDistinctUsers":0,"lastReportedAt":"2024-12-30T07:50:59+00:00"}}')]);
 
         $rule = new \nickurt\AbuseIpDb\Rules\IsSpamIp('118.25.6.39', 30, 37);
 

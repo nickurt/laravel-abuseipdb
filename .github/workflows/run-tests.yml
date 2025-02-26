@@ -13,17 +13,21 @@ jobs:
         strategy:
             matrix:
                 php: [8.3, 8.2]
-                laravel: [10.*, 11.*]
+                laravel: [11.*, 12.*]
                 dependency-version: [prefer-lowest, prefer-stable]
                 os: [ubuntu-latest]
                 include:
+                    - laravel: 12.*
+                      testbench: 10.*
+                      dependency-version: prefer-lowest
+                    - laravel: 12.*
+                      testbench: 10.*
+                      dependency-version: prefer-stable
                     - laravel: 11.*
                       testbench: 9.*
-                    - laravel: 10.*
-                      testbench: 8.*
                       dependency-version: prefer-lowest
-                    - laravel: 10.*
-                      testbench: 8.*
+                    - laravel: 11.*
+                      testbench: 9.*
                       dependency-version: prefer-stable
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }}
@@ -42,14 +46,6 @@ jobs:
             -   name: Require dependencies
                 run: |
                     composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
-
-            -   name: Set Minimum Laravel 10.x Versions
-                uses: nick-invision/retry@v1
-                with:
-                    timeout_minutes: 5
-                    max_attempts: 5
-                    command: composer require laravel/framework:^10.14.0 --no-interaction --no-update
-                if: matrix.dependency-version == 'prefer-lowest' && matrix.laravel == '10.*'
 
             -   name: Install dependencies
                 run: |
