@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-abuseipdb` will be documented in this file
 
+## 3.1.0 - 2026-03-19
+
+- Adding support for Laravel 13
+
 ## 3.0.0 - 2025-02-26
 
 - Refactor'd Guzzle HttpClient to Laravel's native Http Client
